@@ -1,6 +1,7 @@
 import Docker from "dockerode";
 import { Writable } from "stream";
 import stripAnsi from "strip-ansi";
+import { execSync } from "child_process";
 
 export interface DockerClientOptions {
   containerName: string;
@@ -18,6 +19,7 @@ export interface ContainerConfig {
   }>;
   capAdd?: string[];
   securityOpt?: string[];
+  user?: string;
 }
 
 export class DockerClient {
@@ -25,6 +27,7 @@ export class DockerClient {
   private container: Docker.Container | null = null;
   private containerName: string;
   private imageName: string;
+  private defaultUser: string | undefined;
 
   constructor(options: DockerClientOptions) {
     // Configure Docker socket based on platform
@@ -36,6 +39,18 @@ export class DockerClient {
     this.docker = new Docker(dockerOptions);
     this.containerName = options.containerName;
     this.imageName = options.imageName;
+
+    // Set default user to current user (non-root) if not on Windows
+    if (process.platform !== "win32") {
+      try {
+        const uid = execSync("id -u").toString().trim();
+        const gid = execSync("id -g").toString().trim();
+        this.defaultUser = `${uid}:${gid}`;
+      } catch (error) {
+        // If we can't get user ID, fall back to root
+        this.defaultUser = undefined;
+      }
+    }
   }
 
   /**
@@ -79,6 +94,7 @@ export class DockerClient {
     this.container = await this.docker.createContainer({
       name: this.containerName,
       Image: this.imageName,
+      User: config.user ?? this.defaultUser,
       Env: config.env || [],
       HostConfig: {
         Privileged: config.privileged ?? true,
@@ -314,7 +330,7 @@ export async function measureOperationInContainer(
     /"/g,
     '\\"'
   )}" 2>${tempFile} && cat ${tempFile} && rm ${tempFile}`;
-  
+
   let output: string;
   try {
     output = await client.exec(["sh", "-c", timeCmd]);
@@ -322,18 +338,24 @@ export async function measureOperationInContainer(
     console.error(`Error executing timed command: ${error}`);
     throw error;
   }
-  
+
   // Extract the last line which should be the elapsed time
   const lines = output.trim().split("\n");
   const elapsedStr = lines[lines.length - 1];
+
+  if (!elapsedStr) {
+    console.error(`Failed to parse elapsed time from: "${output}"`);
+    throw new Error(`Failed to parse elapsed time from: "${output}"`);
+  }
+
   const elapsedSeconds = parseFloat(elapsedStr);
-  
+
   if (isNaN(elapsedSeconds)) {
     console.error(`Failed to parse elapsed time from: "${elapsedStr}"`);
     console.error(`Raw output: "${output}"`);
     throw new Error(`Failed to parse elapsed time from: "${elapsedStr}"`);
   }
-  
+
   const duration = Math.round(elapsedSeconds * 1000); // Convert to milliseconds
 
   return {

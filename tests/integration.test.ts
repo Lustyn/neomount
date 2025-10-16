@@ -2,7 +2,7 @@ import { describe, test, expect, beforeAll, afterAll } from "vitest";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { mkdirSync, writeFileSync, rmSync, existsSync } from "fs";
-import { DockerClient, sleep } from "./docker-client";
+import { DockerClient, sleep } from "./docker-client.js";
 
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);

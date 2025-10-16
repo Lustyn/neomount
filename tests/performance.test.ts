@@ -5,10 +5,9 @@ import { existsSync } from "fs";
 import {
   DockerClient,
   sleep,
-  measureOperation,
   measureOperationInContainer,
-} from "./docker-client";
-import type { PerformanceResult } from "./docker-client";
+} from "./docker-client.js";
+import type { PerformanceResult } from "./docker-client.js";
 
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -155,7 +154,9 @@ describe.sequential("Google Drive Performance Tests", () => {
     const result = await measureOperationInContainer(
       dockerClient,
       "List nested directory (5x)",
-      ["bash -c 'for i in {1..5}; do find /mnt/rclone -maxdepth 2 -type f > /dev/null; done'"]
+      [
+        "bash -c 'for i in {1..5}; do find /mnt/rclone -maxdepth 2 -type f > /dev/null; done'",
+      ]
     );
     results.push(result);
     console.log(`✓ List nested: ${result.duration}ms`);
@@ -186,7 +187,9 @@ describe.sequential("Google Drive Performance Tests", () => {
     result.throughput = 10 / (result.duration / 1000);
     results.push(result);
     console.log(
-      `✓ Write 10MB: ${result.duration}ms (${result.throughput.toFixed(2)} MB/s)`
+      `✓ Write 10MB: ${result.duration}ms (${result.throughput.toFixed(
+        2
+      )} MB/s)`
     );
 
     // Verify file exists
@@ -239,8 +242,14 @@ describe.sequential("Google Drive Performance Tests", () => {
     results.push(mergedResult);
 
     // Validate durations are valid numbers
-    expect(rcloneResult.duration, "Rclone duration should be a valid number").toBeGreaterThan(0);
-    expect(mergedResult.duration, "Merged duration should be a valid number").toBeGreaterThan(0);
+    expect(
+      rcloneResult.duration,
+      "Rclone duration should be a valid number"
+    ).toBeGreaterThan(0);
+    expect(
+      mergedResult.duration,
+      "Merged duration should be a valid number"
+    ).toBeGreaterThan(0);
 
     const overhead = mergedResult.duration - rcloneResult.duration;
     const overheadPercent = (overhead / rcloneResult.duration) * 100;
