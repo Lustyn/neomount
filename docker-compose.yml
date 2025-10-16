@@ -1,0 +1,31 @@
+services:
+  neomount:
+    image: neomount:latest
+    privileged: true
+    devices:
+      - /dev/fuse
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    environment:
+      # Rclone remote name (must exist in rclone.conf)
+      - RCLONE_REMOTE=remote
+      # Path within the remote (default: empty/root)
+      - RCLONE_REMOTE_PATH=
+      # Cron schedule for move job (default: 2 AM daily)
+      - MOVE_SCHEDULE=0 2 * * *
+      # Custom rclone mount arguments (optional)
+      # - RCLONE_MOUNT_ARGS=--vfs-cache-mode full --vfs-cache-max-age 24h
+      # Custom mergerfs mount arguments (optional)
+      # - MERGERFS_MOUNT_ARGS=-o use_ino -o cache.files=auto-full
+    volumes:
+      # Mount your rclone config file
+      - ./rclone.conf:/config/rclone.conf:ro
+      # Local storage path (where writes go)
+      - ./data/local:/mnt/local
+      # Merged filesystem (use this for your applications)
+      - ./data/merged:/mnt/merged:shared
+      # Optional: persist logs
+      - ./logs:/var/log/supervisor
+    restart: unless-stopped

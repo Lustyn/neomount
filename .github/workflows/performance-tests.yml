@@ -1,0 +1,46 @@
+name: Performance Tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  performance-tests:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Docker image
+        run: docker build -t neomount:test .
+
+      - name: Create rclone.conf from environment
+        run: |
+          if [ -z "$RCLONE_CONFIG" ]; then
+            echo "⚠️  RCLONE_CONFIG environment variable not set. Performance tests require a valid rclone configuration."
+            echo "Set the RCLONE_CONFIG secret in GitHub repository settings."
+            exit 1
+          fi
+          echo "$RCLONE_CONFIG" > rclone.conf
+        env:
+          RCLONE_CONFIG: ${{ secrets.RCLONE_CONFIG }}
+
+      - name: Run performance tests
+        run: pnpm test:perf
+        timeout-minutes: 30

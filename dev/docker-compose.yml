@@ -1,0 +1,19 @@
+services:
+  neomount:
+    build:
+      context: ..
+      dockerfile: dev/Dockerfile
+    image: neomount:dev
+    container_name: neomount-dev
+    privileged: true
+    environment:
+      - RCLONE_REMOTE=gdrive
+      - RCLONE_REMOTE_PATH=
+      - LOCAL_PATH=/mnt/local
+      - MERGED_PATH=/mnt/merged
+      - MOVE_SCHEDULE=0 2 * * *
+    volumes:
+      - ../rclone.conf:/config/rclone.conf:ro
+    ports:
+      - "8080:8080"
+    restart: unless-stopped

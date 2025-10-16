@@ -1,0 +1,26 @@
+# Data directories
+data/
+logs/
+
+# Rclone config (contains sensitive credentials)
+rclone.conf
+service-account.json
+service-accounts/
+*.json
+!package.json
+!tsconfig.json
+!services/*.conf
+
+# Environment files
+.env
+
+# Log files
+*.log
+
+# Node/pnpm
+node_modules/
+pnpm-lock.yaml
+
+# Test artifacts
+tests/test_data/
+tests/temp_test_data/

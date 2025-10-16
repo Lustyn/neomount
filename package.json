@@ -1,0 +1,29 @@
+{
+  "name": "neomount-tests",
+  "version": "1.0.0",
+  "description": "Integration tests for neomount Docker container",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run tests/integration.test.ts",
+    "test:perf": "vitest run tests/performance.test.ts",
+    "test:all": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "clean": "rimraf tests/test_data tests/temp_test_data",
+    "dev:build": "docker build -t neomount:latest . && docker compose -p neomount-dev -f dev/docker-compose.yml build",
+    "dev:up": "docker compose -p neomount-dev -f dev/docker-compose.yml up -d --force-recreate",
+    "dev:down": "docker compose -p neomount-dev -f dev/docker-compose.yml down",
+    "dev:logs": "docker compose -p neomount-dev -f dev/docker-compose.yml logs -f",
+    "dev": "pnpm dev:build && pnpm dev:up"
+  },
+  "devDependencies": {
+    "@types/dockerode": "^3.3.44",
+    "@types/node": "^22.18.10",
+    "dockerode": "^4.0.9",
+    "rimraf": "^6.0.1",
+    "strip-ansi": "^7.1.2",
+    "tsx": "^4.20.6",
+    "vitest": "^2.1.9"
+  },
+  "packageManager": "pnpm@10.18.3+sha512.bbd16e6d7286fd7e01f6b3c0b3c932cda2965c06a908328f74663f10a9aea51f1129eea615134bf992831b009eabe167ecb7008b597f40ff9bc75946aadfb08d"
+}

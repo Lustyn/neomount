@@ -1,0 +1,6 @@
+:8080 {
+    root /mnt/merged
+    browse
+    log stdout
+    errors stderr
+}
