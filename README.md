@@ -1,4 +1,4 @@
-# Neomount - Rclone + MergerFS Docker Container
+# Neomount
 
 A Docker container that provides a unified filesystem using rclone and mergerfs, with automatic daily synchronization from local to remote storage.
 
@@ -18,7 +18,7 @@ graph TD
     B["Local Storage<br/>/mnt/local<br/>(Read/Write)<br/>Fast Local Storage"]
     C["Rclone Mount<br/>/mnt/rclone<br/>(Read Only)<br/>Cloud Remote<br/>(S3, GDrive, etc.)"]
     D["Daily Move Job<br/>(Transfers local → remote)"]
-    
+
     A --> B
     A --> C
     B --> D
