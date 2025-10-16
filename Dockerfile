@@ -22,7 +22,7 @@ RUN mkdir -p /mnt/rclone \
     /var/log/supervisor \
     /scripts \
     /config && \
-    chmod 755 /var/log/supervisor
+    chmod 777 /var/log/supervisor
 
 # Copy scripts
 COPY scripts/ /scripts/
