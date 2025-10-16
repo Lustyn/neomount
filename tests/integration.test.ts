@@ -31,7 +31,12 @@ async function cleanup() {
 
   // Remove test data
   if (existsSync(TEST_DATA_DIR)) {
-    rmSync(TEST_DATA_DIR, { recursive: true, force: true });
+    try {
+      rmSync(TEST_DATA_DIR, { recursive: true, force: true });
+    } catch (error) {
+      // Ignore permission errors during cleanup
+      console.log("⚠️  Could not fully clean up test data, continuing...");
+    }
   }
 
   console.log("✅ Cleanup complete");
