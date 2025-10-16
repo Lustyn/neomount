@@ -21,8 +21,7 @@ RUN mkdir -p /mnt/rclone \
     /mnt/merged \
     /var/log/supervisor \
     /scripts \
-    /config && \
-    chmod 777 /var/log/supervisor
+    /config
 
 # Copy scripts
 COPY scripts/ /scripts/

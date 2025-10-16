@@ -39,18 +39,6 @@ export class DockerClient {
     this.docker = new Docker(dockerOptions);
     this.containerName = options.containerName;
     this.imageName = options.imageName;
-
-    // Set default user to current user (non-root) if not on Windows
-    if (process.platform !== "win32") {
-      try {
-        const uid = execSync("id -u").toString().trim();
-        const gid = execSync("id -g").toString().trim();
-        this.defaultUser = `${uid}:${gid}`;
-      } catch (error) {
-        // If we can't get user ID, fall back to root
-        this.defaultUser = undefined;
-      }
-    }
   }
 
   /**
@@ -94,7 +82,6 @@ export class DockerClient {
     this.container = await this.docker.createContainer({
       name: this.containerName,
       Image: this.imageName,
-      User: config.user ?? this.defaultUser,
       Env: config.env || [],
       HostConfig: {
         Privileged: config.privileged ?? true,
